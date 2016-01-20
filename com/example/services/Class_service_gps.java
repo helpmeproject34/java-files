@@ -2,83 +2,69 @@ package com.example.services;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.example.after_login.Class_GPS_statefinder;
-import com.example.broadcast_recievers.Class_reciever_gps;
 import com.example.json.Class_server_details;
 import com.example.json.JSONParser;
-import android.app.IntentService;
+
+import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.IBinder;
 import android.widget.Toast;
 
+public class Class_service_gps extends Service {
 
-public class Class_service_gps_update extends IntentService {
-
-	
-	private Handler handler=new Handler();
+	Thread t;
+	Handler handler=new Handler();
 	static JSONParser parser = new JSONParser();
-	public static Thread t=null;
-	public Class_service_gps_update() {
-		super(Class_service_gps_update.class.getName());
-	}
-
-	
 	@Override
-	protected void onHandleIntent(Intent intent) {
-		//run_this();
-		Toast.makeText(getApplicationContext(), "onHandleIntent() is called", Toast.LENGTH_SHORT).show();
+	public IBinder onBind(Intent arg0) {
+		
+		return null;
 	}
-    @Override
-    public void onStart(Intent intent, int startId) {
-    	
-    	super.onStart(intent, startId);
-    	run_this();
-    }
-   
-    private void run_this()
-    {
-    	Toast.makeText(getApplicationContext(), "service started", Toast.LENGTH_SHORT).show();
-    	t=new Thread(new Runnable() {
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		final Context context=getApplicationContext();
+		//final Handler handler=new Handler();
+		t=new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
-				int i=0;
-		    	while(true)
-		    	{
-		    		handler.post(new Runnable() {
+				while(true)
+				{
+					handler.post(new Runnable() {
 						
 						@Override
 						public void run() {
-							Toast.makeText(getApplicationContext(), "running...", Toast.LENGTH_SHORT).show();
+							
+							Toast.makeText(getApplicationContext(), "running", Toast.LENGTH_SHORT).show();
 						}
 					});
-		    		
-		    		
-		    		send();
-		    		
-		    		
-		    		try {
+					send();
+					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
-						
+						// TODO Auto-generated catch block
+						//e.printStackTrace();
 					}
-		    		i++;
-		    	}
+				}
 				
 			}
-    	});
-    	t.start();    	
-    	  	
-    }
-    private void send()
+		});
+		t.start();
+		return super.onStartCommand(intent, flags, startId);
+	}
+	
+	private void send()
 	{
 		
-		if(Class_server_details.server_on==1)
+		if(true)
 		{
 			
 			String var_username="gangadhar";
@@ -136,42 +122,4 @@ public class Class_service_gps_update extends IntentService {
 	        }
 		}
 	}
-	private void print()
-	{
-		Toast.makeText(getApplicationContext(), "updating server....", Toast.LENGTH_SHORT).show();
-	}
-   private void garbage()
-   {
-	   if(t==null)
-   	{
-   		t=new Thread(new Runnable() {
-   			
-   			@Override
-   			public void run() {
-   				
-   				while(true)
-   				{	
-   					handler.post(new Runnable() {
-   						
-   						@Override
-   						public void run() {
-   							print();
-   							
-   						}
-   					});
-   		
-   					send();
-   					try {
-   						Thread.sleep(5000);
-   					} catch (InterruptedException e) {
-   						
-   					}
-   				}
-   			}
-   		});
-       	t.start();
-   	}
-   }
 }
-	
-

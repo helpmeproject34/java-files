@@ -7,7 +7,8 @@ import com.example.groups.Activity_show_groups;
 import com.example.helpers.Activity_search_helper;
 import com.example.login.Activity_login;
 import com.example.project_practise.R;
-import com.example.services.Class_service_gps_update;
+import com.example.services.Class_service_gps;
+
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -138,7 +139,7 @@ public class Activity_welcome extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Toast.makeText(getApplicationContext(), "GPS turned ON FROM BUTTON", Toast.LENGTH_SHORT).show();
-				Intent i=new Intent(getBaseContext(),Class_service_gps_update.class);
+				Intent i=new Intent(getBaseContext(),Class_service_gps.class);
 				startService(i);		
 			}
 		});
@@ -148,7 +149,7 @@ public class Activity_welcome extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Toast.makeText(getApplicationContext(), "GPS turned off FROM BUTTON", Toast.LENGTH_SHORT).show();
-				Intent i=new Intent(getBaseContext(),Class_service_gps_update.class);
+				Intent i=new Intent(getBaseContext(),Class_service_gps.class);
 				stopService(i);
 				
 			}

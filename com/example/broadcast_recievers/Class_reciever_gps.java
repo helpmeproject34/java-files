@@ -1,7 +1,7 @@
 package com.example.broadcast_recievers;
 
 
-import com.example.services.Class_service_gps_update;
+import com.example.services.Class_service_gps;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,15 +30,15 @@ public class Class_reciever_gps extends BroadcastReceiver {
 			{
 	            GPS=1;
 				Toast.makeText(context, "GPS turned ON", Toast.LENGTH_SHORT).show();
-				Intent i=new Intent(context,Class_service_gps_update.class);
+				Intent i=new Intent(context,Class_service_gps.class);
+				context.stopService(i);
 				context.startService(i);
 			}
 			else
 			{
-				Intent i=new Intent(context,Class_service_gps_update.class);
+				Intent i=new Intent(context,Class_service_gps.class);
 				context.stopService(i);
 		    	GPS=0;
-		    	Class_service_gps_update.t=null;
 		    	Toast.makeText(context, "GPS turned OFF and SERVICE stopped", Toast.LENGTH_SHORT).show();
 		    	t=null;
 		    }
