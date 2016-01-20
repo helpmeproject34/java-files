@@ -24,9 +24,9 @@ public class Class_verify_phone_number {
 		
 		if(Class_server_details.server_on==1)
 		{
-			String url=Class_server_details.server_ip+"/android/project/verify_phone.php";
+			String url=Class_server_details.server_ip+"/account/checknumber";
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
-			params.add(new BasicNameValuePair("phone", phone));
+			params.add(new BasicNameValuePair("mobile", phone));
 			JSONObject json = parser.makeHttpRequest(url, "POST", params);
 			try {
 	        	int success=json.getInt("success");

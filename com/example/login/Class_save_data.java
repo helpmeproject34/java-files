@@ -7,8 +7,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-
 import com.example.json.Class_server_details;
 import com.example.json.JSONParser;
 import com.example.project_practise.Response;
@@ -23,13 +21,13 @@ public class Class_save_data {
 	
 			if(Class_server_details.server_on==1)
 			{
-				String url=Class_server_details.server_ip+"/android/project/register.php";
+				String url=Class_server_details.server_ip+"/account/signup";
 				JSONParser parser=new JSONParser();
 				List<NameValuePair> params=new ArrayList<NameValuePair>();
 				params.add(new BasicNameValuePair("username", username));
 				params.add(new BasicNameValuePair("password",password));
 				params.add(new BasicNameValuePair("email",email));
-				params.add(new BasicNameValuePair("phone",phone));
+				params.add(new BasicNameValuePair("mobile",phone));
 				
 				JSONObject result;
 				
@@ -39,10 +37,47 @@ public class Class_save_data {
 					result= parser.makeHttpRequest(url, "POST", params);
 					
 					
-						result_code=result.getInt("success");
+						//result_code=result.getInt("status");
 						String message=result.getString("message");
-						res.message=message;	
-					
+						
+						String result_status=result.getString("success");
+						
+						if(result_status.equals("True"))
+						{
+							result_code=1;
+							message="success";
+						}
+						else
+						{
+							JSONObject error_object=result.getJSONObject("message");
+							message="";
+							if(error_object.has("email"))
+							{
+								message=message+"email exists already";
+							}
+							if(error_object.has("username"))
+							{
+								if(!message.equals(""))
+								{
+									message=message+"\n";
+								}
+								message=message+"username exists already";
+							}
+							if(error_object.has("mobile"))
+							{
+								if(!message.equals(""))
+								{
+									message=message+"\n";
+								}
+								message=message+"mobile exists already";
+							}
+							//Log.d("json",error_object.toString() );
+							
+							//message=message+error_object.getString("email")+"\n"+error_object.getString("username");
+							//Log.d("email",error_object.getString("email"));
+							result_code=0;
+						}
+						res.message=message;
 						
 				} catch (JSONException e) {
 					res.message="json exception occured";

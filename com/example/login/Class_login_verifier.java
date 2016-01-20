@@ -16,9 +16,9 @@ import org.json.JSONObject;
 
 public class Class_login_verifier {
 
-	private static String url=Class_server_details.server_ip+"/android/project/login_details.php";
+	private static String url=Class_server_details.server_ip+"/account/login";
 	//JSONArray result;
-	static int success;
+	static String success;
 	//JSONParser parser;
 	static JSONParser parser = new JSONParser();
 	public static Response verify(String var_username,String var_phone,String var_password) 
@@ -32,13 +32,13 @@ public class Class_login_verifier {
 		{
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
 	        params.add(new BasicNameValuePair("username", var_username));
-	        params.add(new BasicNameValuePair("phone",var_phone));
+	        params.add(new BasicNameValuePair("mobile",var_phone));
 	        params.add(new BasicNameValuePair("password",var_password));
 			
 	        JSONObject json = parser.makeHttpRequest(url, "POST", params);
 	        try {
-	        	success=json.getInt("success");
-	        	if(success==1)
+	        	success=json.getString("success");
+	        	if(success.equals("True"))
 	        	{
 	        		res.bool=true;
 	        	
@@ -48,7 +48,7 @@ public class Class_login_verifier {
 	        		res.bool=false;
 	        	}
 	        		
-	        	res.message=json.getString("message");
+	        	res.message="some message";
 			} catch (JSONException e1) {
 				res.bool=false;
 				res.message="JOSN exception occured";
