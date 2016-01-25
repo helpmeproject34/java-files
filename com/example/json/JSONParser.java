@@ -62,6 +62,7 @@ public class JSONParser {
  
                 HttpResponse httpResponse = httpClient.execute(httpPost);
                 HttpEntity httpEntity = httpResponse.getEntity();
+               
                 is = httpEntity.getContent();
  
             }else if(method == "GET"){
@@ -73,8 +74,8 @@ public class JSONParser {
                 
                 
                 hparams=httpClient.getParams();
-                HttpConnectionParams.setConnectionTimeout(hparams,3000);
-              	HttpConnectionParams.setSoTimeout(hparams, 3000);
+                HttpConnectionParams.setConnectionTimeout(hparams,10000);
+              	HttpConnectionParams.setSoTimeout(hparams, 10000);
               	
               	
                 HttpResponse httpResponse = httpClient.execute(httpGet);

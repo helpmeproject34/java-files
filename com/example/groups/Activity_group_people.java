@@ -56,9 +56,9 @@ public class Activity_group_people extends Activity {
 			
 			
 			friends_objects=new ArrayList<Class_group_object>();
-			friends_objects.add(new Class_group_object("friend 1","description"));
-			friends_objects.add(new Class_group_object("friend 2","description"));
-			friends_objects.add(new Class_group_object("friend 3","description"));
+			friends_objects.add(new Class_group_object("friend 1","description",var_group_id));
+			friends_objects.add(new Class_group_object("friend 2","description",var_group_id));
+			friends_objects.add(new Class_group_object("friend 3","description",var_group_id));
 			listview.setAdapter(adapter);
 			
 			listview.setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -72,15 +72,7 @@ public class Activity_group_people extends Activity {
 				}
 			});
 			handler=new Handler();
-			Thread t=new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					load_group_people();
-				}
-			});
 			
-			t.start();
 		}
 		
 		
@@ -96,7 +88,7 @@ public class Activity_group_people extends Activity {
 				progressbar.setVisibility(View.VISIBLE);
 			}
 		});
-		Class_group_friend_loader.load_friends(var_username,var_phone,var_group_id);
+		Class_group_friend_loader.load_friends(friends_objects,var_username,var_phone,var_group_id);
 		handler.post(new Runnable() {
 			
 			@Override
@@ -116,6 +108,21 @@ public class Activity_group_people extends Activity {
 	public void on_listitem_long_clicked()
 	{
 		
+	}
+	@Override
+	protected void onStart() 
+	{
+		Thread t=new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				load_group_people();
+			}
+		});
+		
+		t.start();
+		
+		super.onStart();
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -172,15 +179,16 @@ public class Activity_group_people extends Activity {
 						
 					}
 				});
-				if(Class_add_new_persorn.add()==true)
+				if(Class_add_new_persorn.add(phone_num,var_group_id)==true)
 				{
 					handler.post(new Runnable() {
 						
 						@Override
 						public void run() {
-							friends_objects.add(new Class_group_object(name,phone_num));
+							//friends_objects.add(new Class_group_object(name,phone_num,var_group_id));
 							
 							progressbar.setVisibility(View.INVISIBLE);
+							Toast.makeText(getApplicationContext(), "added "+name+" into "+var_group_name,Toast.LENGTH_LONG).show();
 							load_group_people();
 						}
 					});

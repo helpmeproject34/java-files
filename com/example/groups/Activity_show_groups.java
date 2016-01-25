@@ -52,10 +52,10 @@ public class Activity_show_groups extends Activity {
 			
 			
 			group_objects = new ArrayList<Class_group_object>();
-			group_objects.add(new Class_group_object("Group 1", "you are in this group"));
-			group_objects.add(new Class_group_object("Group 2", "you are in this group"));
-			group_objects.add(new Class_group_object("Group 3", "you are in this group"));
-			group_objects.add(new Class_group_object("Group 4", "you are in this group"));
+			//group_objects.add(new Class_group_object("Group 1", "you are in this group"));
+			//group_objects.add(new Class_group_object("Group 2", "you are in this group"));
+			//group_objects.add(new Class_group_object("Group 3", "you are in this group"));
+			//group_objects.add(new Class_group_object("Group 4", "you are in this group"));
 			
 			
 			
@@ -89,7 +89,7 @@ public class Activity_show_groups extends Activity {
 			}
 		});
 		
-		Class_group_loader.get_group_names();
+		Class_group_loader.get_group_names(var_username,var_phone,group_objects);
 		handler.post(new Runnable() {
 			
 			@Override
@@ -114,7 +114,7 @@ public class Activity_show_groups extends Activity {
 		bundle.putString("username", var_username);
 		bundle.putString("phone", var_phone);
 		bundle.putString("group_name",object.group_name);
-		bundle.putString("group_id","group_id");
+		bundle.putString("group_id",object.group_id);
 		
 		
 		intent.putExtras(bundle);
@@ -140,17 +140,7 @@ public class Activity_show_groups extends Activity {
 		}
 		else if(item.getItemId()==R.id.settings_groups_refresh)
 		{
-			
-			Thread t=new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					load_group_names();
-				}
-			});
-			
-			t.start();
-			
+			refresh();
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
@@ -226,8 +216,10 @@ public class Activity_show_groups extends Activity {
 						
 						if(result==true)
 						{
-							group_objects.add(new Class_group_object(group_name,"You created this group"));
-							load_group_names();
+							//group_objects.add(new Class_group_object(group_name,"You created this group"));
+							//load_group_names();
+							Toast.makeText(Activity_show_groups.this.getApplicationContext(),"Creation of new group is success", Toast.LENGTH_SHORT).show();
+							refresh();
 						}
 						else
 						{
@@ -240,6 +232,18 @@ public class Activity_show_groups extends Activity {
 			}
 			
 		});
+		t.start();
+	}
+	private void refresh()
+	{
+		Thread t=new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				load_group_names();
+			}
+		});
+		
 		t.start();
 	}
 }

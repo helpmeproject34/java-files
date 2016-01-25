@@ -2,6 +2,7 @@ package com.example.friends;
 
 import java.util.HashMap;
 
+import com.example.contacts.Class_give_phones;
 import com.example.project_practise.R;
 
 import android.net.Uri;
@@ -96,6 +97,9 @@ public class Activity_showfriends extends Activity {
 	{
 		
 		ContentResolver resolver=getContentResolver();
+		String[] phones=Class_give_phones.give(resolver);
+		
+		
 		Cursor cursor_phones=resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null, null, null);
 		
 		int count=cursor_phones.getCount();
@@ -162,39 +166,7 @@ public class Activity_showfriends extends Activity {
 					}
 				}
 				
-			/*	if(Class_verify_phone_number.verification("9970610243"))
-				{
-					//final String name="NAME";
-					 String name="";
-					Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode("9970610243"));
-				    Cursor cursor_names = resolver.query(uri, new String[]{PhoneLookup.DISPLAY_NAME}, null, null, null);
-				    if(cursor_names.moveToFirst())
-					{
-						while(cursor_names.moveToNext())
-						{
-							name=cursor_names.getString(cursor_names.getColumnIndex(PhoneLookup.DISPLAY_NAME));
-							
-						}
-					}
-					cursor_names.close();
-					final Class_friend_object obj=new Class_friend_object(name,"fadsf");
-					handler.post(new Runnable() {
-						
-						@Override
-						public void run() {
-							
-							adapter.list.add(obj);
-							adapter.notifyDataSetChanged();
-							
-						}
-					});
-					
-				}
-					
-			*/
-			
-				
-			
+
 		}
 		handler.post(new Runnable() {
 			

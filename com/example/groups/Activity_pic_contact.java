@@ -1,6 +1,8 @@
 package com.example.groups;
 
+import com.example.contacts.Class_give_phones;
 import com.example.databases.Db_functions;
+import com.example.friends.Class_friend_object;
 import com.example.friends.Class_verify_phone_number;
 import com.example.project_practise.R;
 
@@ -56,7 +58,7 @@ public class Activity_pic_contact extends Activity {
 					@Override
 					public void run() {
 						
-						load_contacts_from_database();
+						refresh_list();
 					}
 				});
 				t.start();
@@ -130,7 +132,7 @@ public class Activity_pic_contact extends Activity {
 				 cursor.moveToFirst();
 					while(cursor.moveToNext())
 					{
-						Class_group_object object=new Class_group_object(cursor.getString(1),cursor.getString(2));
+						Class_group_object object=new Class_group_object(cursor.getString(1),cursor.getString(2),null);
 						adapter.addItem(object);
 					}
 					db_funcs.close_all();
@@ -139,6 +141,7 @@ public class Activity_pic_contact extends Activity {
 		});
 		
 	}
+	
 	public void refresh_list()
 	{
 		handler.post(new Runnable() {
@@ -149,42 +152,41 @@ public class Activity_pic_contact extends Activity {
 				adapter.arraylist.clear();
 			}
 		});
-		Db_functions db_funcs=new Db_functions(this.getApplicationContext());
-		db_funcs.delete_table_contacts();
+		//Db_functions db_funcs=new Db_functions(this.getApplicationContext());
+	//	db_funcs.delete_table_contacts();
 		ContentResolver resolver=getContentResolver();
-		Cursor cursor_phones=resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null, null, null);
 		
-		if(cursor_phones.moveToFirst())
+		String[] phone_numbers=Class_give_phones.give(resolver);
+		int count=phone_numbers.length;
+		String[] result=Class_verify_phone_number.verification(phone_numbers, count);
+		
+		for(int i=0;i<count;i++)
 		{
-			while(cursor_phones.moveToNext())
+			if(result[i].equals("1"))
 			{
-				final String phone_num = cursor_phones.getString(cursor_phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 				
-				if(Class_verify_phone_number.verification(phone_num))
+				String name="";
+				String temp;
+				Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phone_numbers[i]));
+				Cursor cursor_names = resolver.query(uri, new String[]{PhoneLookup.DISPLAY_NAME}, null, null, null);
+				if(cursor_names.moveToFirst())
 				{
-					
-					 String name="";
-					Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phone_num));
-				    Cursor cursor_names = resolver.query(uri, new String[]{PhoneLookup.DISPLAY_NAME}, null, null, null);
-				    if(cursor_names.moveToFirst())
+					while(cursor_names.moveToNext())
 					{
-						while(cursor_names.moveToNext())
+						temp=cursor_names.getString(cursor_names.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+						if(temp.length()!=0)
 						{
-							name=cursor_names.getString(cursor_names.getColumnIndex(PhoneLookup.DISPLAY_NAME));
-							
+							name=temp;
 						}
 					}
-					cursor_names.close();
-					db_funcs.insert_into_table_contact(name, phone_num);
-					adapter.addItem(new Class_group_object(name,phone_num));
 				}
-					
+				cursor_names.close();	
+				adapter.addItem(new Class_group_object(name,phone_numbers[i],null));
 			}
-			cursor_phones.close();
-		
-		
+			
 		}
-		db_funcs.close_all();
+		//db_funcs.close_all();
+
 		handler.post(new Runnable() {
 			
 			@Override

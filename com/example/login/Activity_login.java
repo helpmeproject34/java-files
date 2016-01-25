@@ -34,12 +34,9 @@ public class Activity_login extends Activity {
 		
 		var_textview_username.setText("harinath");
 		var_textview_password.setText("harinath");
-		var_textview_phone.setText("9999999999");
+		var_textview_phone.setText("9970610243");
 		
-		
-		
-		
-		
+	
 		ProgressBar var_progressbar=(ProgressBar)findViewById(R.id.progressbar);
 		var_progressbar.setVisibility(View.INVISIBLE);
 		Button var_button_register=(Button)findViewById(R.id.button_register);

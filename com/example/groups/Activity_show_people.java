@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class Activity_show_people extends Activity {
@@ -27,7 +28,7 @@ public class Activity_show_people extends Activity {
 	String var_group_name;
 	Boolean admin_or_not;
 	Thread updating_thread;
-	
+	TextView textview;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,11 +58,12 @@ public class Activity_show_people extends Activity {
 			
 			setTitle(var_group_name+" on Map");
 			progressbar=(ProgressBar)findViewById(R.id.progressbar_show_group_people);
+			textview=(TextView)findViewById(R.id.textview_show_people);
 			progressbar.setVisibility(View.INVISIBLE);
 			
 			handler=new Handler();
 			
-			start_refresh_thread(7000);
+			start_refresh_thread(10000);
 			
 		}
 	}
@@ -122,22 +124,33 @@ public class Activity_show_people extends Activity {
 	{
 		
 		 updating_thread=new Thread(new Runnable() {
-			
+		
 			@Override
 			public void run() {
 				
 				
-				
+				ArrayList<Class_locations> locations=new ArrayList<Class_locations>();
+				String groupid=var_group_id;
+				String username=var_username;
+				String total="";
 				while(is_removed()==false)
 				{
-					ArrayList<Class_locations> locations=new ArrayList<Class_locations>();
+					locations.clear();
 					if(!Activity_show_people.this.isFinishing())
 					{
-						locations=Class_locations_provider.provide_locations(locations);
+						Class_locations_provider.provide_locations(locations,groupid,username);
+						total="";
+						int length=locations.size();
+						for(int j=0;j<length;j++)
+						{
+							total=total+(locations.get(j)).toString()+"\n";
+						}
+						final String total2=total;
 						handler.post(new Runnable() {
 							
 							@Override
 							public void run() {
+								textview.setText(total2);
 								Toast.makeText(getApplicationContext(), "people's locations are updated now",Toast.LENGTH_SHORT).show();	
 							}
 						});
