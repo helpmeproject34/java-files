@@ -22,12 +22,14 @@ public class Class_verify_phone_number {
 	
 	public static String[] verification(String[] phone,int count)
 	{
-		String[] result=new String[count];
+		String[] result=new String[count+1];
 		
 		
 		
 		if(Class_server_details.server_on==1)
 		{
+			Log.d("exception", "phone 0 is "+phone[0]);
+			Log.d("exception","count is :"+count);
 			String url=Class_server_details.server_ip+"/account/checknumber";
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
 			
@@ -38,20 +40,36 @@ public class Class_verify_phone_number {
 				params.add(new BasicNameValuePair(i+"",phone[i]));
 				
 				result[i]=0+"";
+				
 			}
+			result[count]=0+"";
 			//params.add(new BasicNameValuePair("count",count+""));
 			
 			try {
 				JSONObject json = parser.makeHttpRequest(url, "POST", params);
 				String response=json.getString("success");
-	        	String[] comma_sep=response.split(",");
-	        	int len=comma_sep.length;
-	        	for(int j=0;j<len;j++)
-	        	{
-	        		String[] split=comma_sep[j].split(":");
-	        		phone[j]=split[0];
-	        		result[j]=split[1];
-	        	}
+				Log.d("exception","respnse is "+ response);
+				if(response.equals("False"))
+				{
+					Log.d("exception","false recieved");
+				}
+				else if(response!=null&&response.length()!=0)
+				{
+					String[] comma_sep=response.split(",");
+		        	int len=comma_sep.length;
+		        	for(int j=0;j<len;j++)
+		        	{
+		        		String[] split=comma_sep[j].split(":");
+		        		phone[j]=split[0];
+		        		result[j]=split[1];
+		        	}
+		        	result[count]=1+"";
+				}
+				else
+				{
+					result[count]=1+"";
+				}
+	        	
 	        	
 			} catch (JSONException e1) {
 				Log.d("exception", "json exception");
@@ -62,7 +80,7 @@ public class Class_verify_phone_number {
 	        }
 	        catch(Exception e)
 	        {
-	        	Log.d("exception", "unknown exception");
+	        	Log.d("exception", "unknown exception"+e.getMessage());
 	        }
 		}
 		else if(Class_server_details.server_on==0)
@@ -72,13 +90,14 @@ public class Class_verify_phone_number {
 			{
 				result[i]="1";	
 			}
+			result[count]=1+"";
 		}
 		
 		return result;
 	}
-	public static boolean verification(String phone)
+	/*public static boolean verification(String phone)
 	{
 		boolean result=true;
 		return result;
-	}
+	}*/
 }

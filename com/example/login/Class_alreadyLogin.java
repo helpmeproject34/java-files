@@ -11,7 +11,7 @@ public class  Class_alreadyLogin {
 	
 	 public static  String username;
 	 public static String phone;
-	 
+	 public static boolean islogin;
 	 
 	public static Boolean login_or_not(Context context)
 	{
@@ -33,7 +33,7 @@ public class  Class_alreadyLogin {
 		}
 		
 		funcs.close_all();
-		
+		islogin=result;
 		return result;
 	}
 }

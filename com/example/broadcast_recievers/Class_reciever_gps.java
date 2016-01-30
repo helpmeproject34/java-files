@@ -14,7 +14,7 @@ import android.widget.Toast;
 public class Class_reciever_gps extends BroadcastReceiver {
 
 	 public  static  int GPS;
-	public static Thread t=null;
+	
 
 	
 	Context con;
@@ -40,7 +40,7 @@ public class Class_reciever_gps extends BroadcastReceiver {
 				context.stopService(i);
 		    	GPS=0;
 		    	Toast.makeText(context, "GPS turned OFF and SERVICE stopped", Toast.LENGTH_SHORT).show();
-		    	t=null;
+		    	
 		    }
 		
 		

@@ -7,3 +7,4 @@ public class Class_server_details {
 	public static int server_on=1;
 	
 }
+                                                                                                        

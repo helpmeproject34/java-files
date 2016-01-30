@@ -3,11 +3,16 @@ package com.example.groups;
 
 import java.util.ArrayList;
 
+import com.example.alert_dialogs.Alert_ok;
 import com.example.project_practise.R;
+import com.example.project_practise.Response;
 import android.os.Bundle;
 import android.os.Handler;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,9 +23,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+
+
+
 @SuppressLint("NewApi")
 public class Activity_group_people extends Activity {
-
+ 
 	Handler handler;
 	ListView listview;
 	Adapter_groups adapter;
@@ -29,6 +37,11 @@ public class Activity_group_people extends Activity {
 	String var_phone;
 	String var_group_id;
 	String var_group_name;
+	String var_group_admin_username;
+	String var_group_admin_phone;
+	String var_admin_username;
+	String var_admin_phone;
+	Context this_context;
 	ArrayList<Class_group_object> friends_objects;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +61,9 @@ public class Activity_group_people extends Activity {
 			var_phone=bundle.getString("phone");
 			var_group_id=bundle.getString("group_id");
 			var_group_name=bundle.getString("group_name");
+			var_admin_username=bundle.getString("group_admin_username");
+			var_admin_phone=bundle.getString("group_admin_phone");
+			this_context=this;
 			
 			setTitle(var_group_name+"'s people");
 			progressbar=(ProgressBar)findViewById(R.id.progressbar_group_people);
@@ -67,7 +83,8 @@ public class Activity_group_people extends Activity {
 				public boolean onItemLongClick(AdapterView<?> parent, View view,
 						int index, long id) {
 					Class_group_object object=adapter.arraylist.get(index);
-					Toast.makeText(getApplicationContext(),object.group_name+" long pressed",Toast.LENGTH_SHORT).show();
+					itemLongClick(object,index);
+					Toast.makeText(getApplicationContext(),object.group_name+" long pressed and admin username is "+var_admin_username+"\nadmin phone is "+var_admin_phone,Toast.LENGTH_SHORT).show();
 					return false;
 				}
 			});
@@ -79,11 +96,12 @@ public class Activity_group_people extends Activity {
 	}
 	public void load_group_people()
 	{
+		adapter.arraylist.clear();
 		handler.post(new Runnable() {
 			
 			@Override
 			public void run() {
-				adapter.arraylist.clear();
+				
 				adapter.notifyDataSetChanged();
 				progressbar.setVisibility(View.VISIBLE);
 			}
@@ -105,12 +123,7 @@ public class Activity_group_people extends Activity {
 			}
 		});
 	}
-	public void on_listitem_long_clicked()
-	{
-		
-	}
-	@Override
-	protected void onStart() 
+	public void refresh()
 	{
 		Thread t=new Thread(new Runnable() {
 			
@@ -121,8 +134,16 @@ public class Activity_group_people extends Activity {
 		});
 		
 		t.start();
+	}
+	public void on_listitem_long_clicked()
+	{
 		
+	}
+	@Override
+	protected void onStart() 
+	{
 		super.onStart();
+		refresh();
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -136,15 +157,7 @@ public class Activity_group_people extends Activity {
 		
 		if(item.getItemId()==R.id.settings_group_people_refresh)
 		{
-			Thread t=new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					load_group_people();
-				}
-			});
-			
-			t.start();
+			refresh();
 		}
 		 if(item.getItemId()==R.id.settings_group_people_add)
 		{
@@ -189,9 +202,10 @@ public class Activity_group_people extends Activity {
 							
 							progressbar.setVisibility(View.INVISIBLE);
 							Toast.makeText(getApplicationContext(), "added "+name+" into "+var_group_name,Toast.LENGTH_LONG).show();
-							load_group_people();
+							
 						}
 					});
+					refresh();
 				}
 				else
 				{
@@ -200,7 +214,7 @@ public class Activity_group_people extends Activity {
 						@Override
 						public void run() {
 							Toast.makeText(getApplicationContext(), "Cannot add the perosn now",Toast.LENGTH_LONG).show();
-							
+							Alert_ok.show(this_context,"Unable to add this person now.\nPlease try again later");
 						}
 					});
 					
@@ -224,5 +238,88 @@ public class Activity_group_people extends Activity {
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
+	private void itemLongClick(final Class_group_object object,final int index)
+	{
+		
+		 final CharSequence[] items = {
+	                "Remove "+object.group_name+" from "+var_group_name
+	        };
 
+	        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	       // builder.setTitle("Make your selection");
+	        builder.setItems(items, new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int item) {
+	                if(item==0)
+	                {
+	                	//delete_group_member(object,index);
+	                	if(var_phone.equals(var_admin_phone))
+	                	{
+	                		Alert_ok alert=new Alert_ok()
+	                		{
+	                			@Override
+	                			public void ontrue() {
+	                				
+	                				super.ontrue();
+	                				delete_group_member(object,index);
+	                			}
+	                		};
+	                		alert.ok_or_cancel(this_context, "", "Are you sure to remove from group");
+	                	}
+	                	else
+	                	{
+	                		Alert_ok.show(this_context, "You are not ADMIN to remove this person");
+	                	}
+	                	
+	                }
+	               
+	            }
+	        });
+	        AlertDialog alert = builder.create();
+	        alert.show();
+	}
+	private void delete_group_member(final Class_group_object object,final int index)
+	{
+		//final Response result;
+		Toast.makeText(getApplicationContext(),"removing "+object.total_numbers +" from "+var_group_id,Toast.LENGTH_SHORT).show();
+		Thread t=new Thread(new Runnable() {
+			Response result;
+			@Override
+			public void run() {
+				 result=Class_delete_groupmember.delete(var_group_id,object.total_numbers);	
+				
+				handler.post(new Runnable() {
+					
+					@Override
+					public void run() {
+						if(result.bool)
+						{
+							adapter.arraylist.remove(index);
+							if(object.total_numbers.equals(var_admin_phone)||adapter.arraylist.size()==0)
+							{
+								adapter.arraylist.clear();
+								Toast.makeText(getApplicationContext(),"Admin is removed so group is deleted",Toast.LENGTH_SHORT).show();
+								Alert_ok.show(this_context, "This group no longer exist");
+								finish();
+							}
+							else
+							{
+								
+								Toast.makeText(getApplicationContext(), result.message,Toast.LENGTH_SHORT).show();
+							}
+							
+							adapter.notifyDataSetChanged();
+						}
+						else
+						{
+							Toast.makeText(getApplicationContext(), result.message,Toast.LENGTH_SHORT).show();
+						}
+						
+						
+					}
+				});
+			}
+		});
+		t.start();
+		
+	}
 }

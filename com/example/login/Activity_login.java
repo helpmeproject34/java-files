@@ -97,12 +97,13 @@ public class Activity_login extends Activity {
 									if(res.bool==true)
 									{
 										
-										Toast.makeText(getApplicationContext(),"Login Successfull", Toast.LENGTH_LONG).show();
+										//Toast.makeText(getApplicationContext(),"Login Successfull", Toast.LENGTH_LONG).show();
+										Toast.makeText(getApplicationContext(),res.message, Toast.LENGTH_LONG).show();
 										take_after_login(string_username,string_phone);
 									}
 									else
 									{
-										Toast.makeText(getApplicationContext(),"Wrong Credentials\n"+res.message, Toast.LENGTH_LONG).show();
+										Toast.makeText(getApplicationContext(),res.message, Toast.LENGTH_LONG).show();
 										
 										var_progressbar.setVisibility(View.INVISIBLE);
 									}

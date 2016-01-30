@@ -8,21 +8,23 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
+
 
 import com.example.json.Class_server_details;
 import com.example.json.JSONParser;
+import com.example.project_practise.Response;
 
 public class Class_group_loader {
 	static JSONParser parser = new JSONParser();
-	public static void get_group_names(String username,String phone,ArrayList<Class_group_object> group_objects)
+	public static Response get_group_names(String username,String phone,ArrayList<Class_group_object> group_objects)
 	{
+		Response result=new Response();
+		result.bool=false;
+		result.value=-1;
 		group_objects.clear(); // first clear all the objects from array list
 		
 		if(Class_server_details.server_on==1)
 		{
-			
-			
 			
 			String url=Class_server_details.server_ip+"/checkgroup";
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -31,43 +33,63 @@ public class Class_group_loader {
 			params.add(new BasicNameValuePair("username",username));
 			params.add(new BasicNameValuePair("mobile",phone));
 			
+			result.message="check your internet connection";
 			try {
 				JSONObject json = parser.makeHttpRequest(url, "POST", params);
+				
 				String response=json.getString("success");
 				if(response.equals("False")||response.equals("")||response==null)
 				{
-					Log.e("False","false detected in Class_group_load");
+					result.value=0;
+					result.message="No groups to load\n please create a group";
 				}
 				else
 				{
+					result.message="All groups loaded";
 					String[] comma_sep=response.split(",");
 		        	int len=comma_sep.length;
 		        	for(int j=0;j<len;j++)
 		        	{
 		        		String[] split=comma_sep[j].split(":");
-		        		if(split.length!=2)
+		        		if(split.length<4)
 		        		{
-		        			group_objects.add(new Class_group_object(split[0],"Group id is : null","-1"));
+		        			group_objects.add(new Class_group_object(split[0],"Group id is : null","-1","-1","-1"));
+		        			result.message="Unexpected response from server";
 		        		}
 		        		else
 		        		{
-		        			group_objects.add(new Class_group_object(split[0],"Group id is : "+split[1],split[1]));
+		        			if(username.equals(split[2]))
+		        			{
+		        				group_objects.add(new Class_group_object(split[0],"You created this group",split[1],split[2],split[3]));
+		        			}
+		        			else
+		        			{
+		        				group_objects.add(new Class_group_object(split[0],"You are a member of this group\nand admin is "+split[2],split[1],split[2],split[3]));
+		        			}
+		        			
 		        		}
-		        		
+		        		result.value=1;
 		        	}
+		        	if(len==0)
+		        	{
+		        		result.message="NO groups to load \n please Create one group";
+		        		result.value=0;
+		        	}
+		        	result.bool=true;
 				}
 	        	
 	        	
 			} catch (JSONException e1) {
-				Log.d("exception", "json exception from class_group_load");
+				
+				result.message="Oops !! error occured";
 			}
 	        catch(NullPointerException e)
-	        {
-	        	Log.d("exception", "null pointer exception from class_group_load");
+	        { 	
+	        	result.message="Unable to connect to server. Please check your network connection";
 	        }
 	        catch(Exception e)
 	        {
-	        	Log.d("exception", "unknown exception from class_group_load "+e.getMessage());
+	        	result.message="Unknown error occured";
 	        }
 		}
 		else
@@ -76,5 +98,6 @@ public class Class_group_loader {
 			group_objects.add(new Class_group_object("group 2","Group id is : "+"random","0"));
 			group_objects.add(new Class_group_object("group 3","Group id is : "+"random","0"));
 		}
+		return result;
 	}
 }

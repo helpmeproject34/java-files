@@ -1,20 +1,32 @@
 package com.example.after_login;
 
+
+
+
+
+import com.example.alert_dialogs.Alert_ok;
 import com.example.databases.Db_functions;
 
 import com.example.friends.Activity_showfriends;
 import com.example.groups.Activity_show_groups;
+
 import com.example.helpers.Activity_search_helper;
+
+
 import com.example.login.Activity_login;
 import com.example.project_practise.R;
 import com.example.services.Class_service_gps;
 
 
+
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,7 +51,7 @@ public class Activity_welcome extends Activity {
 	Button var_button_search;
 	Button var_button_testing;
 	Button var_button_testing_off;
-	
+	Context context;
 	@Override
 	protected void onCreate(Bundle b) {
 		super.onCreate(b);
@@ -56,7 +68,7 @@ public class Activity_welcome extends Activity {
 		}
 		else 
 		{
-			
+			context=this;
 			setContentView(R.layout.activity_welcome);
 			String userName =var_intent_recieved.getStringExtra("userName");
 			String phone=var_intent_recieved.getStringExtra("phone");
@@ -101,6 +113,10 @@ public class Activity_welcome extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Intent intent=new Intent(Activity_welcome.this.getApplicationContext(),Activity_showfriends.class);
+				Bundle bundle=new Bundle();
+				bundle.putString("username",var_username);
+				bundle.putString("phone", var_phone);
+				intent.putExtras(bundle);
 				startActivity(intent);
 				
 			}
@@ -139,8 +155,8 @@ public class Activity_welcome extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Toast.makeText(getApplicationContext(), "GPS turned ON FROM BUTTON", Toast.LENGTH_SHORT).show();
-				Intent i=new Intent(getBaseContext(),Class_service_gps.class);
-				startService(i);		
+				Intent i=new Intent(getApplicationContext(),Class_service_gps.class);
+				getApplicationContext().startService(i);		
 			}
 		});
 		var_button_testing_off=(Button)findViewById(R.id.button_testing_off);
@@ -149,8 +165,8 @@ public class Activity_welcome extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Toast.makeText(getApplicationContext(), "GPS turned off FROM BUTTON", Toast.LENGTH_SHORT).show();
-				Intent i=new Intent(getBaseContext(),Class_service_gps.class);
-				stopService(i);
+				Intent i=new Intent(getApplicationContext(),Class_service_gps.class);
+				getApplicationContext().stopService(i);
 				
 			}
 		});
@@ -193,15 +209,7 @@ public class Activity_welcome extends Activity {
 			bundle.putString("phone", var_phone);
 			startActivity(i);
 		}
-		if(item.getItemId()==R.id.settings_security)
-		{
-			Intent i=new Intent(getApplicationContext(),Activity_security.class);
-			Bundle bundle=new Bundle();
-			bundle.putString("username", var_username);
-			bundle.putString("phone", var_phone);
-			i.putExtras(bundle);
-			startActivity(i);
-		}
+		
 		if(item.getItemId()==R.id.settings_tracklist)
 		{
 			Intent i=new Intent(getApplicationContext(),Activity_tracklist.class);
@@ -211,13 +219,14 @@ public class Activity_welcome extends Activity {
 			i.putExtras(bundle);
 			startActivity(i);
 		}
+		
 		if(item.getItemId()==R.id.settings_logout)
 		{
 			
 			pb=(ProgressBar)findViewById(R.id.progressbar_welcome);
 			pb.setVisibility(View.VISIBLE);
 			
-			Thread t=new Thread(new Runnable() {
+			final Thread t=new Thread(new Runnable() {
 				
 				@Override
 				public void run() {
@@ -228,6 +237,7 @@ public class Activity_welcome extends Activity {
 						
 						@Override
 						public void run() {
+							
 							Db_functions funcs=new Db_functions(Activity_welcome.this.getApplicationContext());
 							Db_functions.delete_table_prev_login();
 							funcs.close_all();
@@ -239,10 +249,30 @@ public class Activity_welcome extends Activity {
 					});
 				}
 			});
-			t.start();
+			
+			
+			
+			
+				Alert_ok alert=new Alert_ok()
+				{
+					@Override
+					public void ontrue()
+					{
+						t.start();
+					}
+					@Override
+					public void onfalse()
+					{
+						pb.setVisibility(View.INVISIBLE);
+					}
+				};
+				alert.ok_or_cancel(context, "", "You are about to LOGOUT","CANCEL","LOGOUT");
+			
+			
 			
 			}
-	
+			
+			
 		
 		return super.onMenuItemSelected(featureId, item);
 	}

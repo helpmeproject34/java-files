@@ -26,7 +26,7 @@ public class Class_login_verifier {
 		
 		Response res=new Response();
 		res.bool=false;
-		res.message="message not set";
+		res.message="";
 		
 		if(Class_server_details.server_on==1)
 		{
@@ -41,25 +41,26 @@ public class Class_login_verifier {
 	        	if(success.equals("True"))
 	        	{
 	        		res.bool=true;
-	        	
+	        		res.message="Login Success !!";
 	        	}
 	        	else
 	        	{
 	        		res.bool=false;
+	        		res.message="Wrong Credentials";
 	        	}
 	        		
-	        	res.message="some message";
+	        	
 			} catch (JSONException e1) {
 				res.bool=false;
-				res.message="JOSN exception occured";
+				res.message="Error occured try again !!";
 			}
 	        catch(NullPointerException e)
 	        {
-	        	res.message="null pointer exception occured";
+	        	res.message="Unable to connect \n Please check Internet connection";
 	        }
 	        catch(Exception e)
 	        {
-	        	res.message="unknown exception occured";
+	        	res.message="Unknown Error";
 	        }
 		}
 		else if(Class_server_details.server_on==0)

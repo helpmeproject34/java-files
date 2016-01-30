@@ -14,6 +14,10 @@ public class Class_locations {
 		this.longitude=longitude;
 		this.last_updated=last_updated;
 	}
+	public Class_locations()
+	{
+		
+	}
 	@Override
 	public String toString() {
 		

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.util.List;
  
 import org.apache.http.HttpEntity;
@@ -31,10 +32,10 @@ public class JSONParser {
     static InputStream is = null;
     static JSONObject jObj = null;
     static String json = "";
- 
+    public String status_code="";
     // constructor
     public JSONParser() {
- 
+    	
     }
  
     // function get json from url
@@ -45,25 +46,32 @@ public class JSONParser {
     	HttpParams hparams=new BasicHttpParams();
   
         // Making HTTP request
+    	
         try {
  
             // check for request method
-            if(method == "POST"){
+        	
+            if(method == "POST"||method.equals("POST")){
                 // request method is POST
                 // defaultHttpClient
             	
                 DefaultHttpClient httpClient = new DefaultHttpClient();
                 hparams=httpClient.getParams();
-                HttpConnectionParams.setConnectionTimeout(hparams,3000);
-              	HttpConnectionParams.setSoTimeout(hparams, 3000);
-                HttpPost httpPost = new HttpPost(url);
+                HttpConnectionParams.setConnectionTimeout(hparams,10000);
                 
+              	HttpConnectionParams.setSoTimeout(hparams, 10000);
+              	
+                HttpPost httpPost = new HttpPost(url);
+               
                 httpPost.setEntity(new UrlEncodedFormEntity(params));
- 
+                
                 HttpResponse httpResponse = httpClient.execute(httpPost);
+                
+                status_code=httpResponse.getStatusLine().getStatusCode()+"";
                 HttpEntity httpEntity = httpResponse.getEntity();
                
                 is = httpEntity.getContent();
+                
  
             }else if(method == "GET"){
                 // request method is GET
@@ -79,26 +87,42 @@ public class JSONParser {
               	
               	
                 HttpResponse httpResponse = httpClient.execute(httpGet);
+                status_code=httpResponse.getStatusLine().getStatusCode()+"";
                 HttpEntity httpEntity = httpResponse.getEntity();
                 is = httpEntity.getContent();
-            }           
- 
-        } catch (UnsupportedEncodingException e) {
+            } 
+            
+            
+        }
+        catch(SocketException e)
+        {
+        	Log.d("exception", "socket "+e.getMessage());
+        }
+        catch (UnsupportedEncodingException e) {
+        	Log.d("exception", "unsupported encoding "+e.getMessage());
            // e.printStackTrace();
         	return null;
         } catch (ClientProtocolException e) {
            // e.printStackTrace();
+        	Log.d("exception", "client protocol "+e.getMessage());
         	return null;
         }
         catch (InterruptedIOException e)
         {
+        	Log.d("exception", "interrupted io exception "+e.getMessage());
         	return null;
         }
         catch (IOException e) {
            // e.printStackTrace();
+        	Log.d("exception", " io exception "+e.getMessage());
         	return null;
         }
-       
+        
+        catch(Exception e)
+       {
+    	   Log.d("exception", "unknown exception "+e.getMessage());
+       	return null;
+       }
         
        
  
@@ -114,6 +138,7 @@ public class JSONParser {
             json = sb.toString();
         } catch (Exception e) {
             //Log.e("Buffer Error", "Error converting result " + e.toString());
+        	Log.d("exception", "buffered exception in parser "+e.getMessage());
         	return null;
         }
  
@@ -122,11 +147,13 @@ public class JSONParser {
             jObj = new JSONObject(json);
         } catch (JSONException e) {
            // Log.e("JSON Parser", "Error parsing data " + e.toString());
+        	Log.d("exception", "json object conversion excep in parser "+e.getMessage());
         	return null;
         }
         
  
         // return JSON String
+      
         return jObj;
  
     }

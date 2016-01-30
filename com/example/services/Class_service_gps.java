@@ -8,12 +8,16 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.example.gps.Class_location_listener;
 import com.example.json.Class_server_details;
 import com.example.json.JSONParser;
 import com.example.login.Class_alreadyLogin;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.widget.Toast;
@@ -21,23 +25,59 @@ import android.widget.Toast;
 public class Class_service_gps extends Service {
 
 	public static Thread t=null;
+	public boolean run_service=true;
 	Handler handler=new Handler();
 	static JSONParser parser = new JSONParser();
+	LocationManager location_manager;
+	public Location location;
+	private static final long MIN_DISTANCE_FOR_UPDATE = 10;
+	private static final long MIN_TIME_FOR_UPDATE = 1000 * 60 * 2;
+	
+	//Context context=getApplicationContext();
+	
+	public Class_service_gps()
+	{
+		
+	}
+	
 	@Override
 	public IBinder onBind(Intent arg0) {
 		
 		return null;
 	}
 	@Override
+	@Deprecated
+	public void onStart(Intent intent, int startId) {
+		// TODO Auto-generated method stub
+		super.onStart(intent, startId);
+		run_service=true;
+	}
+	@Override
+	public void onDestroy() {
+		
+		super.onDestroy();
+		run_service=false;
+		t=null;
+	}
+	@Override
+	public boolean stopService(Intent name) {
+		// TODO Auto-generated method stub
+		run_service=false;
+		t=null;
+		return super.stopService(name);
+	}
+	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		
+		run_service=true;
+		location_manager=(LocationManager)(getApplicationContext()).getSystemService(LOCATION_SERVICE);
 		if(t==null&&Class_alreadyLogin.login_or_not(getApplicationContext()))
 		{
 			t=new Thread(new Runnable() {
 				
 				@Override
 				public void run() {
-					while(true)
+					while(run_service&&Class_alreadyLogin.islogin)
 					{
 						handler.post(new Runnable() {
 							
@@ -45,6 +85,7 @@ public class Class_service_gps extends Service {
 							public void run() {
 								
 								Toast.makeText(getApplicationContext(), "running", Toast.LENGTH_SHORT).show();
+								location=giveLocation();
 							}
 						});
 						send();
@@ -73,9 +114,19 @@ public class Class_service_gps extends Service {
 			
 			String var_username=Class_alreadyLogin.username;
 			String var_phone=Class_alreadyLogin.phone;
-			String latitude=Math.random()*100+"";
-			String longitude=Math.random()*100+"";
 			
+			String latitude;//=Math.random()*100+"";
+			String longitude;//=Math.random()*100+"";
+			if(location!=null)
+			{
+				latitude=location.getLatitude()+"";
+				longitude=location.getLongitude()+"";
+			}
+			else                                                   
+			{
+				latitude=-1+"";
+				longitude=-1+"";
+			}
 			String url=Class_server_details.server_ip+"/account/location";
 			
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -131,5 +182,41 @@ public class Class_service_gps extends Service {
 	        	
 	        }
 		}
+	}
+	public Location giveLocation()
+	{
+		Location location=null;
+		if(location_manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+		{
+			try
+			{
+				location_manager.requestLocationUpdates(LocationManager.GPS_PROVIDER,MIN_TIME_FOR_UPDATE,MIN_DISTANCE_FOR_UPDATE, new Class_location_listener());
+				if(location_manager!=null)
+				{
+					location=location_manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+				}
+			}
+			catch(Exception e)
+			{
+				Toast.makeText(getApplicationContext(), "Exception occured while taking location from GPS", Toast.LENGTH_SHORT).show();
+			}
+			
+		}
+		else if(location_manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+		{
+			try
+			{
+				location_manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,MIN_TIME_FOR_UPDATE,MIN_DISTANCE_FOR_UPDATE, new Class_location_listener());
+				if(location_manager!=null)
+				{
+					location=location_manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+				}
+			}
+			catch(Exception e)
+			{
+				Toast.makeText(getApplicationContext(), "Exception occured while taking location from NETWORK", Toast.LENGTH_SHORT).show();
+			}
+		}
+		return location;
 	}
 }

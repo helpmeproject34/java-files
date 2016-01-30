@@ -2,24 +2,37 @@ package com.example.groups;
 
 import java.util.ArrayList;
 
+
+import com.example.alert_dialogs.Alert_ok;
 import com.example.project_practise.R;
+import com.example.project_practise.Response;
+
+
 import android.os.Bundle;
 import android.os.Handler;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ActionBar.LayoutParams;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
+@SuppressLint("NewApi")
 public class Activity_show_groups extends Activity {
 
 	String var_username;
@@ -28,7 +41,9 @@ public class Activity_show_groups extends Activity {
 	Handler handler;
 	Adapter_groups adapter;
 	ListView listview;
+	RelativeLayout layout;
 	ArrayList<Class_group_object> group_objects;
+	Context this_context;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,11 +60,11 @@ public class Activity_show_groups extends Activity {
 			Bundle bundle=getIntent().getExtras();
 			var_username=bundle.getString("username");
 			var_phone=bundle.getString("phone");
-			
+			this_context=this;
 			var_progressbar=(ProgressBar)findViewById(R.id.progressbar_show_groups);
 			
 			adapter=new Adapter_groups();
-			
+			layout=(RelativeLayout)findViewById(R.id.relativelayout_activity_show_groups);
 			
 			group_objects = new ArrayList<Class_group_object>();
 			//group_objects.add(new Class_group_object("Group 1", "you are in this group"));
@@ -71,14 +86,24 @@ public class Activity_show_groups extends Activity {
 				}
 				
 			});
-			
+			listview.setOnLongClickListener(new OnLongClickListener() {
+				
+				@Override
+				public boolean onLongClick(View view) {
+					
+					return false;
+				}
+			});
 			handler=new Handler();
-			
+			   
 		}
 	}
 	
+	//@SuppressLint("InlinedApi")
 	private void load_group_names()
 	{
+		
+		
 		handler.post(new Runnable() {
 			
 			@Override
@@ -86,25 +111,93 @@ public class Activity_show_groups extends Activity {
 				adapter.arraylist.clear();
 				adapter.notifyDataSetChanged();
 				var_progressbar.setVisibility(View.VISIBLE);
+				
 			}
 		});
 		
-		Class_group_loader.get_group_names(var_username,var_phone,group_objects);
+		final Response result=Class_group_loader.get_group_names(var_username,var_phone,group_objects);
+		
 		handler.post(new Runnable() {
 			
 			@Override
 			public void run() {
-				int total_items=group_objects.size();
-				for(int i=0;i<total_items;i++)
+				Toast.makeText(getApplicationContext(), result.message, Toast.LENGTH_SHORT).show();
+				clean();
+				if(result.bool==true)
 				{
-					adapter.addItem(group_objects.get(i));
+					int total_items=group_objects.size();
+					for(int i=0;i<total_items;i++)
+					{
+						adapter.addItem(group_objects.get(i));
+					}
+					adapter.notifyDataSetChanged();
 				}
-				
-				adapter.notifyDataSetChanged();
+				else
+				{
+					Alert_ok alert=new Alert_ok()
+					{
+						@Override
+						public void ontrue() {
+							
+							super.ontrue();
+							if(result.value==-1)
+							{
+								refresh();
+							}
+							else
+							{
+								create_new_group();
+							}
+						}
+						@Override
+						public void onfalse() {
+							
+							super.onfalse();
+							
+						}
+					};
+					if(result.value==-1)
+					{
+						alert.ok_or_cancel(this_context, "",result.message,"CANCEL","REFRESH");
+					}
+					else if(result.value==0)
+					{
+						alert.ok_or_cancel(this_context, "",result.message,"CANCEL","CREATE NEW GROUP");
+					}
+					Button b=new Button(getApplicationContext());
+					b.setText("Refresh");
+					
+					b.setOnClickListener(new OnClickListener() {
+						
+						@Override
+						public void onClick(View arg0) {
+							layout.removeView(arg0);
+							refresh();
+							
+						}
+					});
+					LayoutParams params=new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+					b.setLayoutParams(params);
+					layout.addView(b);
+					
+					
+				}
 				var_progressbar.setVisibility(View.INVISIBLE);
 			}
 		});
 		
+	}
+	private void clean()
+	{
+		int len=layout.getChildCount();
+		for(int i=0;i<len;i++)
+		{
+			View view=layout.getChildAt(i);
+			if(view instanceof Button )
+			{
+				layout.removeViewAt(i);
+			}
+		}
 	}
 	private void on_item_click(AdapterView<?> parent, View view, int pos,long id)
 	{
@@ -115,7 +208,8 @@ public class Activity_show_groups extends Activity {
 		bundle.putString("phone", var_phone);
 		bundle.putString("group_name",object.group_name);
 		bundle.putString("group_id",object.group_id);
-		
+		bundle.putString("group_admin_username", object.group_admin_username);
+		bundle.putString("group_admin_phone",object.group_admin_phone);
 		
 		intent.putExtras(bundle);
 		
@@ -130,6 +224,7 @@ public class Activity_show_groups extends Activity {
 		
 		return true;
 	}
+	
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		
@@ -148,17 +243,7 @@ public class Activity_show_groups extends Activity {
 	protected void onStart() {
 		
 		super.onStart();
-		Thread t=new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				load_group_names();
-				
-			}
-		});
-		
-		t.start();
+		refresh();
 	}
 	private void create_new_group()
 	{
@@ -224,6 +309,7 @@ public class Activity_show_groups extends Activity {
 						else
 						{
 							Toast.makeText(Activity_show_groups.this.getApplicationContext(),"Creation of new group failed", Toast.LENGTH_SHORT).show();
+							Alert_ok.show(this_context, "Creation of new group failed");
 						}
 						var_progressbar.setVisibility(View.INVISIBLE);
 					}
