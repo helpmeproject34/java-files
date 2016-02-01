@@ -5,18 +5,23 @@ import com.example.friends.Class_check_tracking;
 import com.example.groups.Class_locations;
 import com.example.project_practise.R;
 import com.example.project_practise.Response;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+//import com.google.android.gms.common.ConnectionResult;
+//mport com.google.android.gms.common.GooglePlayServicesUtil;
 
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Activity_tracking_friend extends Activity {
+public class Activity_tracking_friend extends FragmentActivity {
 
 	Bundle bundle;
 	String var_friend_name;
@@ -24,14 +29,14 @@ public class Activity_tracking_friend extends Activity {
 	String var_username;
 	String var_phone;
 	Class_locations location;
-	TextView textview;
+	//TextView textview;
 	Context context;
 	boolean destroyed;
 	Handler handler;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_tracking_friend);
+		
 		Intent var_intent_received=getIntent();
 		 if(var_intent_received==null||var_intent_received.getExtras()==null)
 		 {
@@ -49,8 +54,17 @@ public class Activity_tracking_friend extends Activity {
 			 context=this;
 			 
 			 handler=new Handler();
-			 textview=(TextView)findViewById(R.id.textview_activity_tracking_friend);
-			 textview.setText(var_username+" "+var_phone+"is tracking "+var_friend_name+" "+var_friend_phone);
+			// textview=(TextView)findViewById(R.id.textview_activity_tracking_friend);
+			// textview.setText(var_username+" "+var_phone+"is tracking "+var_friend_name+" "+var_friend_phone);
+		 }
+		 if(services_ok())
+		 {
+			 setContentView(R.layout.fragment_map);
+			 Toast.makeText(context, "SERCIES OK",Toast.LENGTH_SHORT).show();
+		 }
+		 else
+		 {
+			 setContentView(R.layout.activity_tracking_friend);
 		 }
 		 Thread t=new Thread(new Runnable() {
 			
@@ -111,7 +125,7 @@ public class Activity_tracking_friend extends Activity {
 						if(result.bool==true)
 						{
 							Toast.makeText(context, "Updated now....",Toast.LENGTH_SHORT).show();
-							textview.setText(var_friend_name+" is at \nlatitude:"+location.latitude+"\nlongitude:"+location.longitude+"\nlast updated at:"+location.last_updated);
+							//textview.setText(var_friend_name+" is at \nlatitude:"+location.latitude+"\nlongitude:"+location.longitude+"\nlast updated at:"+location.last_updated);
 						}
 						else
 						{
@@ -139,5 +153,23 @@ public class Activity_tracking_friend extends Activity {
 		getMenuInflater().inflate(R.menu.activity_tracking_friend, menu);
 		return false;
 	}
-
+	private boolean services_ok()
+	{
+		boolean result=false;
+		int isavail=GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
+		if(isavail==ConnectionResult.SUCCESS)
+		{
+			result=true;
+		}
+		else if(GooglePlayServicesUtil.isUserRecoverableError(isavail))
+		{
+			Dialog dialog=GooglePlayServicesUtil.getErrorDialog(isavail, this,9001);
+			dialog.show();
+		}
+		else
+		{
+			Alert_ok.show(getApplicationContext(), "Google play services are not availabe");
+		}
+		return result;
+	}
 }

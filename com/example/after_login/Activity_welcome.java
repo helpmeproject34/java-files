@@ -15,17 +15,23 @@ import com.example.helpers.Activity_search_helper;
 
 import com.example.login.Activity_login;
 import com.example.project_practise.R;
-import com.example.services.Class_service_gps;
+
+//import com.example.services.Class_service_gps;
 
 
 
 
+import android.R.color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +44,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.location.*;
 
+@SuppressLint("InlinedApi")
 public class Activity_welcome extends Activity {
 
 	
@@ -78,7 +85,7 @@ public class Activity_welcome extends Activity {
 			
 			
 			TextView var_textView_welcomeNote=(TextView)findViewById(R.id.textView_welcomeNote);
-			var_textView_welcomeNote.setText("WELCOME "+userName);
+			var_textView_welcomeNote.setText(userName);
 			
 			pb=(ProgressBar)findViewById(R.id.progressbar_welcome);
 			pb.setVisibility(View.INVISIBLE);
@@ -149,7 +156,7 @@ public class Activity_welcome extends Activity {
 				
 			}
 		});
-		var_button_testing=(Button)findViewById(R.id.button_testing_gps);
+		/*var_button_testing=(Button)findViewById(R.id.button_testing_gps);
 		var_button_testing.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -169,7 +176,7 @@ public class Activity_welcome extends Activity {
 				getApplicationContext().stopService(i);
 				
 			}
-		});
+		});*/
 	}
 	private void register_for_gps_updates()
 	{
@@ -194,6 +201,9 @@ public class Activity_welcome extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_welcome, menu);
+		ActionBar bar = getActionBar();
+		//bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#0000ff")));
+		bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#413B52")));
 		
 		return true;
 	}

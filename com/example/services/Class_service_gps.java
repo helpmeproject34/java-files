@@ -14,7 +14,7 @@ import com.example.json.JSONParser;
 import com.example.login.Class_alreadyLogin;
 
 import android.app.Service;
-import android.content.Context;
+
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
@@ -31,7 +31,7 @@ public class Class_service_gps extends Service {
 	LocationManager location_manager;
 	public Location location;
 	private static final long MIN_DISTANCE_FOR_UPDATE = 10;
-	private static final long MIN_TIME_FOR_UPDATE = 1000 * 60 * 2;
+	private static final long MIN_TIME_FOR_UPDATE = 1000 * 30;
 	
 	//Context context=getApplicationContext();
 	
@@ -108,25 +108,26 @@ public class Class_service_gps extends Service {
 	
 	private void send()
 	{
+		String var_username=Class_alreadyLogin.username;
+		String var_phone=Class_alreadyLogin.phone;
 		
-		if(true)
+		String latitude;//=Math.random()*100+"";
+		String longitude;//=Math.random()*100+"";
+		if(location!=null)
+		{
+			latitude=location.getLatitude()+"";
+			longitude=location.getLongitude()+"";
+		}
+		else                                                   
+		{
+			latitude=-1+"";
+			longitude=-1+"";
+		}
+		
+		if(location!=null)
 		{
 			
-			String var_username=Class_alreadyLogin.username;
-			String var_phone=Class_alreadyLogin.phone;
 			
-			String latitude;//=Math.random()*100+"";
-			String longitude;//=Math.random()*100+"";
-			if(location!=null)
-			{
-				latitude=location.getLatitude()+"";
-				longitude=location.getLongitude()+"";
-			}
-			else                                                   
-			{
-				latitude=-1+"";
-				longitude=-1+"";
-			}
 			String url=Class_server_details.server_ip+"/account/location";
 			
 			List<NameValuePair> params = new ArrayList<NameValuePair>();

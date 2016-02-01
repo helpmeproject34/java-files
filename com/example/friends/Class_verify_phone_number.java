@@ -28,8 +28,8 @@ public class Class_verify_phone_number {
 		
 		if(Class_server_details.server_on==1)
 		{
-			Log.d("exception", "phone 0 is "+phone[0]);
-			Log.d("exception","count is :"+count);
+			///Log.d("exception", "phone 0 is "+phone[0]);
+			//Log.d("exception","count is :"+count);
 			String url=Class_server_details.server_ip+"/account/checknumber";
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
 			
@@ -48,7 +48,7 @@ public class Class_verify_phone_number {
 			try {
 				JSONObject json = parser.makeHttpRequest(url, "POST", params);
 				String response=json.getString("success");
-				Log.d("exception","respnse is "+ response);
+				//Log.d("exception","respnse is "+ response);
 				if(response.equals("False"))
 				{
 					Log.d("exception","false recieved");
@@ -72,15 +72,15 @@ public class Class_verify_phone_number {
 	        	
 	        	
 			} catch (JSONException e1) {
-				Log.d("exception", "json exception");
+				Log.d("exception", "json exception in class verify phone number");
 			}
 	        catch(NullPointerException e)
 	        {
-	        	Log.d("exception", "null pointer exception");
+	        	Log.d("exception", "null pointer exception class verify phone number");
 	        }
 	        catch(Exception e)
 	        {
-	        	Log.d("exception", "unknown exception"+e.getMessage());
+	        	Log.d("exception", "unknown exception class verify phone number "+e.getMessage());
 	        }
 		}
 		else if(Class_server_details.server_on==0)

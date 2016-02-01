@@ -205,7 +205,8 @@ public class Activity_group_people extends Activity {
 							
 						}
 					});
-					refresh();
+					
+					
 				}
 				else
 				{
@@ -219,7 +220,14 @@ public class Activity_group_people extends Activity {
 					});
 					
 				}
-				
+				handler.post(new Runnable() {
+					
+					@Override
+					public void run() {
+						refresh();
+						
+					}
+				});
 			}
 		});
 		t.start();	
@@ -280,6 +288,7 @@ public class Activity_group_people extends Activity {
 	private void delete_group_member(final Class_group_object object,final int index)
 	{
 		//final Response result;
+		progressbar.setVisibility(View.VISIBLE);
 		Toast.makeText(getApplicationContext(),"removing "+object.total_numbers +" from "+var_group_id,Toast.LENGTH_SHORT).show();
 		Thread t=new Thread(new Runnable() {
 			Response result;
@@ -313,7 +322,7 @@ public class Activity_group_people extends Activity {
 						{
 							Toast.makeText(getApplicationContext(), result.message,Toast.LENGTH_SHORT).show();
 						}
-						
+						progressbar.setVisibility(View.INVISIBLE);
 						
 					}
 				});
